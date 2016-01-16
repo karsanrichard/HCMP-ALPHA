@@ -87,6 +87,24 @@ class Dispensing extends MY_Controller {
 		$this->load->view($view,$data);
 	}
 
+	public function issue(){
+		$facility_code = $this -> session -> userdata('facility_id');
+		$service_point = 2;//hard coded for pharmacy,until requested for :]
+		$p_data = Patients::get_all();
+		$service_point_stock = facility_stocks::get_service_point_stocks($facility_code,$service_point);
+
+		// echo "<pre>";print_r($service_point_stock);exit;
+		$data['sp_commodities'] = $service_point_stock;
+		// $p_data = Patients::get_patient_data();		
+		$data['patient_data'] = $p_data;
+		$facility_code = $this -> session -> userdata('facility_id');
+		$data['title'] = "Patient Dispensing";
+		$data['banner_text'] = "Patient Dispensing";		
+		$view = 'shared_files/template/template';
+		$data['content_view'] = 'facility/facility_dispensing/dispense';
+		$this->load->view($view,$data);
+	}
+
 	public function add_multiple_patients(){		
 		$facility_code = $this -> session -> userdata('facility_id');
 		$data['title'] = "Patient Management";
@@ -142,7 +160,33 @@ class Dispensing extends MY_Controller {
 
 		$patients = Patients::save_patient($data_array,$patient_number,$date_created,$facility_code);
 	}
-
+	public function get_patient_detail($type=NULL){
+		$patient_number = $this->input->post('patient_number');
+		if ($type==NULL) {
+			$patient_details = Patients::filter_patient($patient_number);			
+		}else{
+			$patient_details = Patients::get_one_patient($patient_number);
+		}
+		if (count($patient_details)  < 1) {
+			echo 0;
+		}else{
+		$p_dets = array();
+		foreach ($patient_details as $key => $value) {
+			$id = $value['id'];
+			$firstname = $value['firstname'];
+			$patient_number = $value['patient_number'];
+			$lastname = $value['lastname'];
+			$date_of_birth = $value['date_of_birth'];
+			$date_of_birth_string = date('d F Y', strtotime($date_of_birth));
+			$gender = $value['gender'];
+			$name = $firstname.' '.$lastname;			
+			$gender = ($gender=='1') ? 'Male' : 'Female';
+			$name_and_number = $name .' | '.$patient_number;
+			$p_dets[] = array($patient_number,$name,$gender,$date_of_birth_string,$name_and_number,$id);		
+		}
+		echo json_encode($p_dets);
+	}
+	}
 	public function get_service_point_graph_data(){
 		// $graph_id = "container";
 		$facility_code = $this -> session -> userdata('facility_id');
@@ -189,5 +233,129 @@ class Dispensing extends MY_Controller {
 			);
 			}//end of service point dashboard notifications graph data function
 			//damn that was a long name
+	public function dispense_commodities(){
+		// echo "<pre>";print_r($this->input->post());echo "</pre>";
+
+		$patient_id = $this->input->post("form_patient_id");
+		$quantity = $this->input->post("quantity");
+		$commodity_id = $this->input->post("id");
+
+		$id_count = count($commodity_id) + 1;
+		// echo $id_count;exit;
+		$info = array();
+
+		for ($i=1; $i < $id_count; $i++) { 
+			$info_array= array(
+			'patient_id'=> $patient_id,
+			'units_dispensed'=> $quantity[$i],
+			'commodity_id'=> $commodity_id[$i]
+			);	
+		array_push($info, $info_array);
+
+		}
+		/*
+		foreach ($commodity_id as $data) {
+		$info_array= array(
+			'patient_no'=> $patient_no,
+			'quantity'=> $quantity,
+			'commodity_id'=> $commodity_id
+			);	
+		}
+		*/
+		// array_push($info, $info_array);
+
+		// echo "<pre>";print_r($info);exit;
+
+		$res = $this->db->insert_batch("dispensing_records",$info);
+		$this->issue();
+		// echo $res;
 	}
+	/*REPORTS SECTION START*/
+	public function service_point_store_reports(){
+		$facility_code = $this -> session -> userdata('facility_id');
+			$data['title'] = "Dispensing Reports";
+			$data['banner_text'] = "Facility Consumption";
+			$data['c_data'] = Commodities::get_facility_commodities($facility_code);
+			$data['sidebar'] = "facility/facility_dispensing/dispensing_side_bar_v";
+			$data['report_view'] = "facility/facility_dispensing/dispensing_reports_ajax";
+			$data['content_view'] = "facility/facility_reports/reports_v";
+			$view = 'shared_files/template/template';
+			$data['active_panel'] = 'consumption';
+
+		$this -> load -> view($view, $data);
+			
+	}
+
+	public function patient_history(){
+		$facility_code = $this -> session -> userdata('facility_id');
+			$data['title'] = "Dispensing Reports";
+			$data['banner_text'] = "Facility Consumption";
+			$data['c_data'] = Commodities::get_facility_commodities($facility_code);
+			$data['sidebar'] = "facility/facility_dispensing/dispensing_side_bar_v";
+			$data['report_view'] = "facility/facility_dispensing/patient_history_report";
+			$data['content_view'] = "facility/facility_reports/reports_v";
+			$view = 'shared_files/template/template';
+			$data['active_panel'] = 'consumption';
+
+		$this -> load -> view($view, $data);	
+	}
+
+	public function patient_history_ajax(){
+		$patient_id = $this->input->post('patient_id');
+		$patient_details = Patients::get_patient_history($patient_id);
+
+		// echo "<pre>";print_r($patient_details);
+		/*$p_dets = array();
+		foreach ($patient_details as $key => $value) {
+			$id = $value['id'];
+			$firstname = $value['firstname'];
+			$lastname = $value['lastname'];
+			$date_of_birth = $value['date_of_birth'];
+			$date_of_birth_string = date('F, m Y', strtotime($date_of_birth));
+			$gender = $value['gender'];
+			$name = $firstname.' '.$lastname;			
+			$gender = ($gender=='1') ? 'Male' : 'Female';
+			$name_and_number = $name .' | '.$patient_number;
+			$p_dets[] = array($patient_number,$name,$gender,$date_of_birth_string,$name_and_number,$id);
+		}
+		echo json_encode($p_dets[0]);*/
+		$result_table = "";
+		$result_table .= '
+		<table class="table table-bordered row-fluid datatable">
+			<thead>
+				<th>Patient Name</th>
+				<th>Commodity Name</th>
+				<th>Units Dispensed</th>
+				<th>Date Dispensed</th>
+			</thead>
+
+			<tbody>';
+			if (count($patient_details) > 0 ) {
+				foreach ($patient_details as $data) {
+					$result_table .='<tr>
+						<td>'.$data['firstname'].' '.$data['lastname'].'</td>
+						<td>'.$data['commodity_name'].'</td>
+						<td>'.$data['units_dispensed'].'</td>
+						<td>'.date('Y-M-d',strtotime($data['date_created'])).'</td>
+						</tr>';
+					}
+			}else{
+				$result_table .= '<tr><td colspan="4"><b>There is no history on this patient</b></td></tr>';
+			}
+		
+		$result_table.= '</tbody></table>';
+
+		echo $result_table;
+	}
+
+	public function delete_patient($patient_id){
+		// echo "DELETE FROM patients WHERE id='$patient_id'";exit;
+		$deletion = Doctrine_Manager::getInstance() -> getCurrentConnection() -> execute("DELETE FROM patients WHERE id= $patient_id;");
+		$this -> session -> set_flashdata('system_success_message', "Patient has been deleted");
+
+		// echo $deletion;
+		$this-> patients();
+	}
+
+	}//end of dispense class
 ?>

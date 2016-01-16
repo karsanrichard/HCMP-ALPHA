@@ -82,6 +82,28 @@ class Admin extends MY_Controller {
 
 	}
 
+
+	public function send_email(){
+		$q = "SELECT email FROM user WHERE usertype_id in (0,7,8,11,13,14,15) and status=1 ORDER BY id DESC";
+                $count = $this->db->query($q)->num_rows();
+                $a = 0;
+                $b = 98;
+                $increment = 98;
+                for ($i=$a; $a <=$count ; $i+$increment) { 
+                    $sql = "SELECT email FROM user WHERE usertype_id in (0,7,8,11,13,14,15) and status=1 ORDER BY id DESC LIMIT $a,$b";                    
+                    $res = $this->db->query($sql)->result_array();                                      
+                    $to ="";
+                    foreach ($res as $key => $value) {
+                        $one = $value['email'];
+                        $to.= $one.',';                        
+                    } 
+                    $newmail->send_email($to, $message, $subject, $attach_file, $bcc_email);
+                    $a +=$increment;
+                    $b += $increment;
+                }
+                die();
+	}
+
 	public function reversals(){
 		ini_set('memory_limit', '-1');
 		$permissions='super_permissions';
@@ -547,5 +569,12 @@ class Admin extends MY_Controller {
 		$all_online = $this->onlineusers->total_users();
 
 		echo "<pre> Here I am  ";print_r($all_online);echo "</pre>";
+	}
+
+	public function github_update_status(){
+		echo "I WAS HERE";
+		$res = $this->github_updater->get_update_comments();
+
+		echo "<pre>"; print_r($res);
 	}
 }

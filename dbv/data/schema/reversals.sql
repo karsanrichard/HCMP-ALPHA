@@ -1,0 +1,22 @@
+CREATE TABLE `reversals` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reversed_id` int(11) NOT NULL,
+  `facility_code` varchar(45) DEFAULT NULL,
+  `s11` varchar(60) DEFAULT NULL,
+  `commodity_id` int(11) DEFAULT NULL,
+  `batch_no` varchar(45) DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `balance_as_of` int(11) DEFAULT NULL,
+  `adjustmentpve` int(11) DEFAULT NULL,
+  `adjustmentnve` int(11) DEFAULT NULL,
+  `qty_issued` int(11) DEFAULT NULL,
+  `date_issued` date DEFAULT NULL,
+  `issued_to` varchar(60) DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `issued_by` int(11) DEFAULT NULL,
+  `status` int(11) DEFAULT NULL,
+  `reversal_type` int(11) DEFAULT NULL,
+  `reversal_time` datetime DEFAULT NULL,
+  `reversal_status` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

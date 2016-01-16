@@ -1,1 +1,0 @@
-# hcmp_test

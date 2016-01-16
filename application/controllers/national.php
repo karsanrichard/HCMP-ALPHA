@@ -1191,13 +1191,16 @@ public function stock_level_mos($county_id = null, $district_id = null, $facilit
 
 		}
 
-		public function order($year = null, $county_id = null, $district_id = null, $facility_code = null, $graph_type = null) {
+		public function old_order($year = null, $county_id = null, $district_id = null, $facility_code = null, $graph_type = null) {
 			$district_id = ($district_id == "NULL") ? null : $district_id;
 			$graph_type = ($graph_type == "NULL") ? null : $graph_type;
 			$facility_code = ($facility_code == "NULL") ? null : $facility_code;
 			$county_id = ($county_id == "NULL") ? null : $county_id;
 			$year = ($year == "NULL") ? date('Y') : $year;
 
+			$array_months = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
+			// echo "<pre>";
+			// print_r($array_months);die;
 			$and_data = ($district_id > 0) ? " AND d.id = '$district_id'" : null;
 			$and_data .= ($facility_code > 0) ? " AND f.facility_code = '$facility_code'" : null;
 			$and_data .= ($county_id > 0) ? " AND c.id='$county_id'" : null;
@@ -1316,6 +1319,190 @@ public function stock_level_mos($county_id = null, $district_id = null, $facilit
 
 			}
 
+			public function order($year = null, $county_id = null, $district_id = null, $facility_code = null, $graph_type = null) {
+			$district_id = ($district_id == "NULL") ? null : $district_id;
+			$graph_type = ($graph_type == "NULL") ? null : $graph_type;
+			$facility_code = ($facility_code == "NULL") ? null : $facility_code;
+			$county_id = ($county_id == "NULL") ? null : $county_id;
+			$year = ($year == "NULL") ? date('Y') : $year;			
+			$array_months_texts = array('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
+			$array_months = array(1,2,3,4,5,6,7,8,9,10,11,12);
+
+			$and_data = ($district_id > 0) ? " AND d.id = '$district_id'" : null;
+			$and_data .= ($facility_code > 0) ? " AND f.facility_code = '$facility_code'" : null;
+			$and_data .= ($county_id > 0) ? " AND c.id='$county_id'" : null;
+			$and_data .= ($year > 0) ? " and year(o.`order_date`) =$year" : null;
+			
+			$new_commodity_array = array();
+			foreach ($array_months as $key => $value) {
+				$month_name = $array_months_texts[$key];								
+				$month_and = ($year > 0) ? " and MONTH(o.`order_date`) ='$value'" : null;				
+				$and_data = isset($year) ? $and_data : null;	
+
+				$commodity_array = Doctrine_Manager::getInstance() -> getCurrentConnection() -> fetchAll("SELECT 
+				sum(o.`order_total`) as total,DATE_FORMAT( o.`order_date`,  '%b' ) AS cal_month
+				FROM
+				facilities f, districts d, counties c,`facility_orders` o
+				WHERE
+				o.facility_code=f.facility_code
+				and f.district=d.id and d.county=c.id
+				$and_data $month_and
+				group by month(o.`order_date`)");	
+
+				$commodity_array_2 = Doctrine_Manager::getInstance() -> getCurrentConnection() -> fetchAll("SELECT 
+				sum(o.`order_total`) as total,DATE_FORMAT( o.`order_date`,  '%b' ) AS cal_month
+				FROM
+				facilities f, districts d, counties c,`facility_orders` o
+				WHERE
+				o.facility_code=f.facility_code
+				and f.district=d.id and d.county=c.id and o.status = 4
+				$and_data $month_and
+				group by month(o.`order_date`)
+				");
+
+				$count_array1 = count($commodity_array);			
+				if($count_array1>0){
+					foreach ($commodity_array as $key => $value) {
+						$new_commodity_array[] = array('cal_month'=>$month_name,'total'=>$value['total']);
+					}
+				}else{
+					$new_commodity_array[] = array('cal_month'=>$month_name,'total'=>0);
+				}
+
+				$count_array2 = count($commodity_array_2);			
+				if($count_array2>0){
+					foreach ($commodity_array_2 as $key => $value) {
+						$new_commodity_array_2[] = array('cal_month'=>$month_name,'total'=>$value['total']);
+					}
+				}else{
+					$new_commodity_array_2[] = array('cal_month'=>$month_name,'total'=>0);
+				}
+				
+			}
+			// $commodity_array = Doctrine_Manager::getInstance() -> getCurrentConnection() -> fetchAll("SELECT 
+			// 	sum(o.`order_total`) as total,DATE_FORMAT( o.`order_date`,  '%b' ) AS cal_month
+			// 	FROM
+			// 	facilities f, districts d, counties c,`facility_orders` o
+			// 	WHERE
+			// 	o.facility_code=f.facility_code
+			// 	and f.district=d.id and d.county=c.id
+			// 	$and_data
+			// 	group by month(o.`order_date`)
+			// 	");
+
+			// $commodity_array_2 = Doctrine_Manager::getInstance() -> getCurrentConnection() -> fetchAll("SELECT 
+			// 	sum(o.`order_total`) as total,DATE_FORMAT( o.`order_date`,  '%b' ) AS cal_month
+			// 	FROM
+			// 	facilities f, districts d, counties c,`facility_orders` o
+			// 	WHERE
+			// 	o.facility_code=f.facility_code
+			// 	and f.district=d.id and d.county=c.id and o.status = 4
+			// 	$and_data
+			// 	group by month(o.`order_date`)
+			// 	");
+
+			$category_data = array();
+			$series_data = $series_data_ = array();
+			$temp_array = $temp_array_ = array();
+			$graph_data = array();
+
+			$title = '';
+
+			if ($graph_type != "excel") :
+				if (isset($county_id)) :
+					$county_name = counties::get_county_name($county_id);
+				$name = $county_name['county'];
+				$title = "$name county";
+				elseif (isset($district_id)) :
+					$district_data = (isset($district_id) && ($district_id > 0)) ? districts::get_district_name($district_id) -> toArray() : null;
+				$district_name_ = (isset($district_data)) ? " :" . $district_data[0]['district'] . " Subcounty" : null;
+				$title = isset($facility_code) && isset($district_id) ? "$district_name_ : $facility_name" : (isset($district_id) && !isset($facility_code) ? "$district_name_" : "$name County");
+				elseif (isset($facility_code)) :
+					$facility_code_ = isset($facility_code) ? facilities::get_facility_name_($facility_code) : null;
+				$title = $facility_code_['facility_name'];
+				else :
+					$title = "National";
+				endif;
+
+				
+				foreach ($new_commodity_array as $keyz=>$data) :
+					$cal_month = $data["cal_month"];
+					$total = $data["total"];					
+					$series_data = array_merge($series_data, array($cal_month => (int)$total));
+				$category_data = array_merge($category_data, array($data["cal_month"]));
+				endforeach;
+				// die;
+				// foreach ($commodity_array as $data) :
+				// 	$series_data = array_merge($series_data, array($data["cal_month"] => (int)$data['total']));
+				// $category_data = array_merge($category_data, array($data["cal_month"]));
+				// endforeach;
+
+				$series_data2 = $series_data_2 = $category_data_2 = array();
+
+				foreach ($new_commodity_array_2 as $keyz=>$data) :
+					$cal_month = $data["cal_month"];
+					$total = $data["total"];					
+					$series_data_2 = array_merge($series_data_2, array($cal_month => (int)$total));
+				$category_data_2 = array_merge($category_data_2, array($data["cal_month"]));
+				endforeach;
+				// foreach ($commodity_array_2 as $data_2) :
+				// 	// echo "<pre>";
+				// 	// print_r($data_2);die;
+				// 	$series_data_2 = array_merge($series_data_2, array($data_2["cal_month"] => (int)$data_2['total']));
+				// $category_data_2 = array_merge($category_data_2, array($data_2["cal_month"]));
+				// endforeach;
+// 
+			//$graph_details = array('' => , );;
+			// array_merge($series_data,$series_data_2);
+			// echo "<pre>";print_r($series_data_2);echo "</pre>";exit;
+
+				$graph_type = 'column';
+
+				$graph_data = array_merge($graph_data, array("graph_id" => 'dem_graph_order'));
+				$graph_data = array_merge($graph_data, array("graph_title" => "$year $title Order Cost"));
+				$graph_data = array_merge($graph_data, array("graph_type" => $graph_type));
+				$graph_data = array_merge($graph_data, array("color" => "['#92A8CD', '#A47D7C']"));
+				$graph_data = array_merge($graph_data, array("graph_yaxis_title" => "Cost in KSH"));
+				$graph_data = array_merge($graph_data, array("graph_categories" => $category_data));
+				$graph_data = array_merge($graph_data, array("series_data" => array('Cost of Orders Made' => $series_data, 'Cost of Orders delivered' => $series_data_2)));
+				$data = array();
+
+			//seth
+				$data['high_graph'] = $this -> hcmp_functions -> create_high_chart_graph($graph_data);
+			// echo $data['high_graph'];exit;
+
+				$data['graph_id'] = 'dem_graph_order';
+				return $this -> load -> view("shared_files/report_templates/high_charts_template_v_national", $data);
+				else :
+					$excel_data = array('doc_creator' => "HCMP", 'doc_title' => "$year $title Order Cost", 'file_name' => "$year $title Order Cost (KSH)");
+				$row_data = array();
+				$column_data = array("Date of Order Placement", "Date of Order Approval", "Total Order Cost (Ksh)", "Date of Delivery", "Lead Time (Order Placement to Delivery)", "Supplier", "Facility Name", "Facility Code", "Sub-County", "County");
+				$excel_data['column_data'] = $column_data;
+			//echo  ; exit;
+				$facility_stock_data = Doctrine_Manager::getInstance() -> getCurrentConnection() -> fetchAll("SELECT c.county,d.district as sub_county, f.facility_name, f.facility_code, 
+					DATE_FORMAT(`order_date`,'%d %b %y') as order_date, 
+					DATE_FORMAT(`approval_date`,'%d %b %y')  as approval_date,
+					DATE_FORMAT(`deliver_date`,'%d %b %y')  as delivery_date, 
+					DATEDIFF(`approval_date`,`order_date`) as tat_order_approval,
+					DATEDIFF(`deliver_date`,`approval_date`) as tat_approval_deliver,
+					DATEDIFF(`deliver_date`,`order_date`) as tat_order_delivery
+					, sum(o.`order_total`) as total 
+					from facility_orders o, facilities f, districts d, counties c 
+					where f.facility_code=o.facility_code and f.district=d.id 
+					and c.id=d.county $and_data
+					group by o.id order by c.county asc ,d.district asc , 
+					f.facility_name asc 
+					");
+				array_push($row_data, array("The orders below were placed $year $title"));
+				foreach ($facility_stock_data as $facility_stock_data_item) :
+					array_push($row_data, array($facility_stock_data_item["order_date"], $facility_stock_data_item["approval_date"], $facility_stock_data_item["total"], $facility_stock_data_item["delivery_date"], $facility_stock_data_item["tat_order_delivery"], "KEMSA", $facility_stock_data_item["facility_name"], $facility_stock_data_item["facility_code"], $facility_stock_data_item["sub_county"], $facility_stock_data_item["county"]));
+				endforeach;
+				$excel_data['row_data'] = $row_data;
+
+				$this -> hcmp_functions -> create_excel($excel_data);
+				endif;
+
+			}
 			public function get_lead_infor($year = null, $county_id = null, $district_id = null, $facility_code = null, $graph_type = null) {
 				$district_id = ($district_id == "NULL") ? null : $district_id;
 				$graph_type = ($graph_type == "NULL") ? null : $graph_type;

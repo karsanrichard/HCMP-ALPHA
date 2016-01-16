@@ -22,11 +22,9 @@ class onlineusers{
 	 if(!$this->data) $this->data=array(); $timeout = time()-21600;
 
 //Removes expired data 
-	 if(count($aryData)>0){
-	foreach($aryData as $key => $value){ if($value['time'] <= $timeout) { if($value['username']) { $this->data['memonline']; } else $this->data['guestonline']; unset($aryData[$key]); } }}
+	foreach($aryData as $key => $value){ if($value['time'] <= $timeout) { if($value['username']) { $this->data['memonline']; } else $this->data['guestonline']; unset($aryData[$key]); } }
 
 //If it's the first hit, add the information to database 
-	 if(count($aryData)>0){
 	if(!isset($aryData[$this->ip])){ 
 		$CI =& get_instance(); $aryData[$this->ip]['time'] = time(); $aryData[$this->ip]['uri'] = $_SERVER['REQUEST_URI'];
 
@@ -44,7 +42,6 @@ class onlineusers{
 		// $this->_save(); 
 		}
 	}//end of online users
-}
 
 
 //this function return the total number of online users 

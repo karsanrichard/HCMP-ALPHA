@@ -200,7 +200,8 @@ $identifier = $this -> session -> userdata('user_indicator');
 
   $('.page-header').html('Consumption');
   $('#consumption').parent().parent().parent().addClass('active-panel');
-  ajax_request_replace_div_content('reports/consumption_data_dashboard/NULL/NULL/NULL/NULL/NULL/NULL/NULL/1',"#notification");
+  ajax_request_replace_div_content('reports/generate_county_filter/',"#notification");
+  // ajax_request_replace_div_content('reports/consumption_data_dashboard/NULL/NULL/NULL/NULL/NULL/NULL/NULL/1',"#notification");
  
  
   $('[data-toggle=offcanvas]').click(function () {

@@ -1,3 +1,4 @@
+<?php //echo "<pre>"; print_r($patient_data);exit; ?>
 <style type="text/css">
 	.panel-body,span:hover,.status_item:hover
 	{ 
@@ -22,31 +23,23 @@
 
  <script>
  function alertify_exec(user_id){
- 	if (user_id != '') {
-    	// message = "The Password for User ID: "+user_id+" <?php echo ucfirst($fname).' '.ucfirst($lname); ?> has been reset to : 123456";
-    	message = "The password for <?php echo $username; ?> has been reset to : 123456";
+ 		message = "Successful Delete";
 
     	alertify.set({ delay: 10000 });
     	alertify.success(message, null);
- 	}else{
- 		message = "No action has been taken";
-
-    	alertify.set({ delay: 10000 });
-    	alertify.success(message, null);
- 	}
- 	
  }
  </script>
 
 <?php 
 // $pwd_reset = 1;
-	if (isset($pwd_reset) && $pwd_reset == 1) {
+	if (isset($deleted_success) && $deleted_success == 1) {
 		// echo $reset_user_id;exit;
 		echo "
 		<script>alertify_exec(".$reset_user_id.");</script>
 		";
 	}
  ?>
+
 <div class="container-fluid">
 	<div class="page_content">
 		<div class="" style="width:65%;margin:auto;">
@@ -101,7 +94,7 @@
 				</div>
 				<div class="col-md-12 dt" style="border: 1px solid #ddd;padding-top: 1%; " id="test">
 
-					<table  class="table table-hover table-bordered table-update" id="datatable"  >
+					<table  class="table table-hover table-bordered table-update datatable" id="datatable"  >
 						<thead style="background-color: white">
 							<tr>
 								<th>Name</th>								
@@ -112,7 +105,8 @@
 								<th>Home Address</th>
 								<th>Work Address</th>
 								<th>Patient Number</th>
-								<th>Date Added</th>								
+								<th>Date Added</th>	
+								<th>Action</th>							
 							</tr>
 						</thead>
 
@@ -120,6 +114,7 @@
 
 							<?php
 							foreach ($patient_data as $key => $list ) {
+								$patient_id = $list['id'];
 								$name = $list['firstname'].' '.$list['lastname'];
 								$dob = $list['date_of_birth'];
 								$_age = floor((time() - strtotime($dob)) / 31556926);								
@@ -146,7 +141,7 @@
 								<td><?php echo $work_address;?></td>
 								<td><?php echo $patient_number;?></td>
 								<td><?php echo $date_created_f;?></td>
-								
+								<td><a class="btn btn-danger" href="<?php echo base_url().'dispensing/delete_patient/'.$patient_id; ?>">Delete</a></td>
 							</tr>
 							<?php } ?>
 						</tbody>
@@ -198,7 +193,7 @@
 
 								<div class="input-group form-group u_mgt">
 									<span class="input-group-addon sponsor">Date of Birth <span style="color:#e60000"> * <i>required</i></span></span>
-									<input type="text" name="dob" id="dob" required="required" class="form-control clone_datepicker_normal_limit_today" placeholder="e.g dd/mm/yyyy" tabindex="6">
+									<input type="date" name="dob" id="dob" required="required" class="form-control clone_datepicker_normal_limit_today" placeholder="e.g dd/mm/yyyy" tabindex="6">
 								</div>
 
 								<div class="input-group form-group u_mgt">
@@ -264,7 +259,29 @@
 
 <script>
 $(document).ready(function () {
- 
+ $('.datatable').dataTable( {
+	   "sDom": "T lfrtip",
+	     "sScrollY": "333px",
+	     "sScrollX": "100%",
+                    "sPaginationType": "bootstrap",
+                    "oLanguage": {
+                        "sLengthMenu": "_MENU_ Records per page",
+                        "sInfo": "Showing _START_ to _END_ of _TOTAL_ records",
+                    },
+			      "oTableTools": {
+                 "aButtons": [
+				"copy",
+				"print",
+				{
+					"sExtends":    "collection",
+					"sButtonText": 'Save',
+					"aButtons":    [ "csv", "xls", "pdf" ]
+				}
+			],
+
+			"sSwfPath": "<?php echo base_url(); ?>assets/datatable/media/swf/copy_csv_xls_pdf.swf"
+		}
+	} );
    
 $("#create_new_patient").click(function() {
 
@@ -313,7 +330,7 @@ $("#create_new_patient").click(function() {
 								"<h3>Success!!! A new patient was added to the system. Please Close to continue</h3></div>")
 								
 				$('.modal-footer').html("<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>")
-					
+					location.reload();
 	        }, 4000);
 	            
 	                  

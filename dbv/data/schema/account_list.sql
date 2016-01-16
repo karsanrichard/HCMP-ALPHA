@@ -1,0 +1,10 @@
+CREATE TABLE `account_list` (
+  `accountID` int(11) DEFAULT NULL,
+  `name` varchar(91) DEFAULT NULL,
+  `title` varchar(80) DEFAULT NULL,
+  `organization` varchar(245) DEFAULT NULL,
+  `organizationID` int(11) DEFAULT NULL,
+  `City` varchar(45) DEFAULT NULL,
+  `Region` varchar(45) DEFAULT NULL,
+  `CountryName` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

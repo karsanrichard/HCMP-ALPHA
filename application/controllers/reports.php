@@ -688,17 +688,17 @@ class Reports extends MY_Controller {
 				if($s11_No=='internal issue'){
 					if (preg_match('/[A-Za-z]/i', $service_point_name)) {
 						$data_final[] = array('date_issued'=>$date_issued,
-										'expiry_date'=>$expiry_date,
-										'batch_no'=>$batch_no,
-										'unit_size'=>$unit_size,
-										's11_No'=>$s11_No,
-										'balance_as_of'=>$balance_as_of,
-										'adjustmentnve'=>$adjustmentnve,
-										'adjustmentpve'=>$adjustmentpve,
-										'qty_issued'=>$qty_issued,
-										'fname'=>$fname,
-										'fname'=>$fname,
-										'service_point_name'=>$service_point_name);
+							'expiry_date'=>$expiry_date,
+							'batch_no'=>$batch_no,
+							'unit_size'=>$unit_size,
+							's11_No'=>$s11_No,
+							'balance_as_of'=>$balance_as_of,
+							'adjustmentnve'=>$adjustmentnve,
+							'adjustmentpve'=>$adjustmentpve,
+							'qty_issued'=>$qty_issued,
+							'fname'=>$fname,
+							'fname'=>$fname,
+							'service_point_name'=>$service_point_name);
 					}else {
 						$service_point_name = intval($service_point_name);
 						$service_point_details = Facility_issues::get_one_service_points($service_point_name);
@@ -706,31 +706,31 @@ class Reports extends MY_Controller {
 							$service_point_name = $values['service_point_name'];
 						}
 						$data_final[] = array('date_issued'=>$date_issued,
-										'expiry_date'=>$expiry_date,
-										'batch_no'=>$batch_no,
-										'unit_size'=>$unit_size,
-										's11_No'=>$s11_No,
-										'balance_as_of'=>$balance_as_of,
-										'adjustmentnve'=>$adjustmentnve,
-										'adjustmentpve'=>$adjustmentpve,
-										'qty_issued'=>$qty_issued,
-										'fname'=>$fname,
-										'fname'=>$fname,
-										'service_point_name'=>$service_point_name);
+							'expiry_date'=>$expiry_date,
+							'batch_no'=>$batch_no,
+							'unit_size'=>$unit_size,
+							's11_No'=>$s11_No,
+							'balance_as_of'=>$balance_as_of,
+							'adjustmentnve'=>$adjustmentnve,
+							'adjustmentpve'=>$adjustmentpve,
+							'qty_issued'=>$qty_issued,
+							'fname'=>$fname,
+							'fname'=>$fname,
+							'service_point_name'=>$service_point_name);
 					}
 				}else{
 					$data_final[] = array('date_issued'=>$date_issued,
-										'expiry_date'=>$expiry_date,
-										'batch_no'=>$batch_no,
-										'unit_size'=>$unit_size,
-										's11_No'=>$s11_No,
-										'balance_as_of'=>$balance_as_of,
-										'adjustmentnve'=>$adjustmentnve,
-										'adjustmentpve'=>$adjustmentpve,
-										'qty_issued'=>$qty_issued,
-										'fname'=>$fname,
-										'fname'=>$fname,
-										'service_point_name'=>$service_point_name);
+						'expiry_date'=>$expiry_date,
+						'batch_no'=>$batch_no,
+						'unit_size'=>$unit_size,
+						's11_No'=>$s11_No,
+						'balance_as_of'=>$balance_as_of,
+						'adjustmentnve'=>$adjustmentnve,
+						'adjustmentpve'=>$adjustmentpve,
+						'qty_issued'=>$qty_issued,
+						'fname'=>$fname,
+						'fname'=>$fname,
+						'service_point_name'=>$service_point_name);
 				}
 			}	
 			// echo "<pre>";
@@ -3430,15 +3430,16 @@ class Reports extends MY_Controller {
 					$this -> hcmp_functions -> create_excel($excel_data);
 					else :
 			//echo "<pre>";print_r($category_data);echo "</pre>";exit;
-						$graph_type = 'column';
-					$graph_data = array_merge($graph_data, array("graph_id" => 'dem_graph_'));
+						$graph_type = 'bar';
+					$graph_data = array_merge($graph_data, array("graph_id" => 'dem_graph_'));					
 					$graph_data = array_merge($graph_data, array("graph_title" => "Stock Level $commodity_name for $title as at $month_ $year"));
 					$graph_data = array_merge($graph_data, array("graph_type" => $graph_type));
 					$graph_data = array_merge($graph_data, array("graph_yaxis_title" => "Commodity Stock level in $option_title"));
 					$graph_data = array_merge($graph_data, array("graph_categories" => $category_data));
 					$graph_data = array_merge($graph_data, array("series_data" => array('total' => $series_data)));
 			//echo $category_data;
-					$data['high_graph'] = $this -> hcmp_functions -> create_high_chart_graph($graph_data);
+					$data['graph_id'] = 'dem_graph_';
+					$data['high_graph'] = $this -> hcmp_functions -> create_high_chart_graph($graph_data);					
 					return $this -> load -> view("shared_files/report_templates/high_charts_template_v", $data);
 					endif;
 				}
@@ -3629,6 +3630,7 @@ class Reports extends MY_Controller {
 		 	$axis = "Packs";
 		 	break;
 		 	default :
+		 	$option = 'packs';
 		 	$axis = "Packs";
 				// $axis = "Ksh";
 		 	break;
@@ -3685,16 +3687,16 @@ class Reports extends MY_Controller {
 		 			else :
 		 				array_push($series_data, array($data["name"], $data['commodity'], (int)$data['total']));
 		 			endif;
-		 		elseif ($tracer == 1) :
-		 			$series_data = array_merge($series_data, array((int)$data['total']));
+		 			elseif ($tracer == 1) :
+		 				$series_data = array_merge($series_data, array((int)$data['total']));
 		 			$series_data_ = array_merge($series_data_, array( array($data["commodity"], (int)$data['total'])));
 		 			$category_data = array_merge($category_data, array($data["commodity"]));
-		 		else :
-		 			$series_data = array_merge($series_data, array((int)$data['total']));
+		 			else :
+		 				$series_data = array_merge($series_data, array((int)$data['total']));
 		 			$series_data_ = array_merge($series_data_, array( array($data["name"], (int)$data['total'])));
 		 			$category_data = array_merge($category_data, array($data["name"]));
-		 		endif;
-		 	endforeach;
+		 			endif;
+		 			endforeach;
 		 			$default_consumption_graph_ = array();
 		 			$graph_type = 'bar';
 		 			$default_consumption_graph_ = array_merge($default_consumption_graph_, array("graph_id" => 'graph_content_'));
@@ -3726,6 +3728,15 @@ class Reports extends MY_Controller {
 		 			$data['county_dashboard_notifications'] = array('items_stocked_out_in_facility' => $items_stocked_out_in_facility, 'facility_order_count' => $facility_order_count, 'potential_expiries' => $potential_expiries, 'actual_expiries' => $actual_expiries, 'facility_donations' => $facility_donations, 'facility_roll_out_status' => $facility_roll_out_status);
 		//echo "<pre>";print_r($data['county_dashboard_notifications']); exit;
 		 			return $this -> load -> view("subcounty/ajax/county_consumption_data_filter_v", $data);
+		 		}
+		 		public function generate_county_filter(){
+		 			$county_id = $this -> session -> userdata('county_id');
+		 			$data['district_data'] = districts::getDistrict($county_id);
+		 			$data['c_data'] = Commodities::get_all_2();
+		 			$data['tracer_items'] = Commodities::get_tracer_items();
+		 			$data['categories'] = commodity_sub_category::get_all_pharm();
+		 			return $this -> load -> view("subcounty/ajax/new_county_consumption_data_filter_v", $data);
+
 		 		}
 	public function tracer_report(){//seth
 		//THIS REPORT IS CURRENTLY STATIC UNTIL AN INTERFACE IS MADE
@@ -3772,7 +3783,7 @@ class Reports extends MY_Controller {
 		// $to = ($to == "NULL") ? strtotime(date('d-m-y')) : strtotime(urldecode($to));
 		// echo "$from";die;
 		$from = (($from == "NULL")) ? strtotime(date('Y-m-01')) : strtotime(urldecode($from));
-	 	$to = (($to == "NULL")) ? strtotime(date('Y-m-d')) : strtotime(urldecode($to));
+		$to = (($to == "NULL")) ? strtotime(date('Y-m-d')) : strtotime(urldecode($to));
 		$category_id = ($category_id == "NULL") ? null : $category_id;
 		$county_id = $this -> session -> userdata('county_id');
 		$county_name = counties::get_county_name($county_id);
@@ -3788,7 +3799,7 @@ class Reports extends MY_Controller {
 		$commodity_name = isset($category_name_) ? " for " . $category_name_ : null;
 		$title = isset($facility_code) && isset($district_id) ? "$district_name_ : $facility_name" : ($district_id > 0 && !isset($facility_code) ? "$district_name_" : "$county_name[county] county");
 		$time = "between " . date('j M y', $from) . " and " . date('j M y', $to);
-		$consumption_data = Facility_stocks::get_county_consumption_level_new($facility_code, $district_id, $county_id, $category_id, $commodity_id, $option, $from, $to, $report_type,$tracer);
+		$consumption_data = Facility_stocks::get_county_consumption_level_new($facility_code, $district_id, $county_id, $category_id, $commodity_id, $option_new, $from, $to, $report_type,$tracer);
 		// echo "<pre>";
 		// print_r($consumption_data);die;
 		foreach ($consumption_data as $data) :
@@ -3829,7 +3840,8 @@ class Reports extends MY_Controller {
 			$data['table_id'] = "dem_graph_";
 			return $this -> load -> view("shared_files/report_templates/data_table_template_v", $data);
 			else :
-				$graph_type = 'column';
+				$graph_type = 'bar';
+				// $graph_type = 'column';
 			$graph_data = array_merge($graph_data, array("graph_id" => 'dem_graph_'));
 			$graph_data = array_merge($graph_data, array("graph_title" => "Consumption level $commodity_name $title $time"));
 			$graph_data = array_merge($graph_data, array("graph_type" => $graph_type));
@@ -3837,6 +3849,7 @@ class Reports extends MY_Controller {
 			$graph_data = array_merge($graph_data, array("graph_categories" => $category_data));
 			$graph_data = array_merge($graph_data, array("series_data" => array('total' => $series_data)));
 			$data = array();
+			$data['graph_id'] = 'dem_graph_';
 			$data['high_graph'] = $this -> hcmp_functions -> create_high_chart_graph($graph_data);
 			return $this -> load -> view("shared_files/report_templates/high_charts_template_v", $data);
 			endif;
@@ -4540,15 +4553,15 @@ class Reports extends MY_Controller {
 	 			<td><a class="badge" >' . $no_of_facility_users . '</a></td>
 	 		</tr>
 	 	</table>
-	 </br><p>';
-	 $category_data = array( array("Sub County", 'Facility Name', "MLF No", "Owner", "Facility Status", "Targeted For Roll Out", "Using HCMP", "Date Activated", "No. Facility Users"));
-	 $graph_data = array_merge($graph_data, array("table_id" => 'dem_graph_1'));
-	 $graph_data = array_merge($graph_data, array("table_header" => $category_data));
-	 $graph_data = array_merge($graph_data, array("table_body" => $series_data));
-	 $data['table'] = $this -> hcmp_functions -> create_data_table($graph_data);
-	 $data['table_id'] = "dem_graph_1";
-	 $data['stats_data'] = $stats_data;
-	 return $this -> load -> view("shared_files/report_templates/data_table_template_v", $data);
+		</br><p>';
+		$category_data = array( array("Sub County", 'Facility Name', "MLF No", "Owner", "Facility Status", "Targeted For Roll Out", "Using HCMP", "Date Activated", "No. Facility Users"));
+		$graph_data = array_merge($graph_data, array("table_id" => 'dem_graph_1'));
+		$graph_data = array_merge($graph_data, array("table_header" => $category_data));
+		$graph_data = array_merge($graph_data, array("table_body" => $series_data));
+		$data['table'] = $this -> hcmp_functions -> create_data_table($graph_data);
+		$data['table_id'] = "dem_graph_1";
+		$data['stats_data'] = $stats_data;
+		return $this -> load -> view("shared_files/report_templates/data_table_template_v", $data);
 	}
 	public function set_tragget_facility($facility_id, $status, $type) {
 		//security check
@@ -4690,6 +4703,7 @@ class Reports extends MY_Controller {
 		// $generated = generated_reports::county_order_reports_count($district_id);
 		echo "<pre>";print_r($generated);echo "</pre>";exit;
 	}
+
 	public function tester(){
 		$id = $this->session->userdata('county_id');
 		$sth = Facilities::model_tester();

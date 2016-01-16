@@ -1682,7 +1682,6 @@ class Facility_stocks extends Doctrine_Record {
 		$posterior .= isset($potential_expiries) ? "AND sp.expiry_date BETWEEN CURDATE()AND DATE_ADD(CURDATE(), INTERVAL 6 MONTH) " : NULL;
 		$posterior .= isset($expiries) ? "AND sp.expiry_date < NOW()" : NULL;
 		
-		
 		$query = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll("
 			SELECT 
 			    sp.id AS service_point_stock_id,

@@ -29,7 +29,7 @@ class Patients extends Doctrine_Record {
 
 	public function get_all(){
 		$facility_code = $this -> session -> userdata('facility_id');		
-		$sql = "select firstname, lastname,date_of_birth,gender,telephone,email,home_address,work_address,patient_number,date_created from patient_details where facility_code ='$facility_code' and status = '1'";
+		$sql = "select id,firstname, lastname,date_of_birth,gender,telephone,email,home_address,work_address,patient_number,date_created from patient_details where facility_code ='$facility_code' and status = '1'";
 		$query = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll($sql);
 		return $query;
 	}
@@ -49,6 +49,20 @@ class Patients extends Doctrine_Record {
 			    GROUP BY id
 			");
 
+		return $query;
+	}
+
+	public function get_one_patient($patient_number){
+		$sql = "select id,firstname, lastname, date_of_birth, gender, patient_number from patient_details where patient_number = '$patient_number' limit 0,1";
+		$query = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll($sql);
+		return $query;
+	}
+
+	//comment
+
+	public function filter_patient($patient_number){
+		$sql = "select id,firstname, lastname, date_of_birth, gender, patient_number from patient_details where patient_number like '%$patient_number%' or firstname like '%$patient_number%' or lastname like '%$patient_number%'";
+		$query = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll($sql);
 		return $query;
 	}
 
@@ -106,6 +120,24 @@ class Patients extends Doctrine_Record {
 		}
 		
 		return TRUE;
+	}
+
+	public function get_patient_history($patient_id = NULL){
+		$filter = isset($patient_id)? "AND pd.id = $patient_id":NULL;
+		$sql = "SELECT 
+				    dr.patient_id,
+				    dr.commodity_id,
+				    c.commodity_name,
+				    dr.units_dispensed,
+				    dr.date_created,
+				    pd.firstname,
+				    pd.lastname
+				FROM
+				    dispensing_records dr,commodities c,patient_details pd
+				    WHERE dr.commodity_id = c.id AND dr.patient_id = pd.id $filter";		
+		$query = Doctrine_Manager::getInstance()->getCurrentConnection()->fetchAll($sql);
+
+		return $query;
 	}
 	
 
