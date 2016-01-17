@@ -10,28 +10,30 @@ class Git_updater extends MY_Controller {
 	public function index()
 	{
 		// $this->load->view('welcome_message');
-		echo "Welcome to the the git updater. Updated Once Again";
+		echo "Welcome to the the git updater. Updated Once";
 	}
 
 	public function github_update_status(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->has_update();
 
-		echo "<pre>"; print_r($res);
+		// echo "<pre>"; print_r($res);
+		return $res;
 	}
-
+/*
 	public function github_update(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->update();
 		// $this->unzip->extract();
 		echo "<pre>"; print_r($res);
 	}
-
+*/
 	public function github_update_download(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->update_download();
 		// $this->unzip->extract();
-		echo "<pre>"; print_r($res);
+		// echo "<pre>"; print_r($res);
+		return $res;
 	}
 	
 	public function get_hash(){
@@ -41,7 +43,7 @@ class Git_updater extends MY_Controller {
 		return $res;
 	}
 
-	public function extract_files(){
+	public function extract_and_copy_files(){
 		$hash = $this -> get_hash();
 
 		$unzip_status = $this->unzip->extract($hash.'.zip');
@@ -66,6 +68,8 @@ class Git_updater extends MY_Controller {
 
 			$status = $this->copy_and_replace($squeaky);
 			$set_hash = $this->github_updater_set_config_hash($hash);
+
+			return TRUE;
 	}
 
 	public function ignored_files(){
@@ -108,24 +112,56 @@ class Git_updater extends MY_Controller {
 	public function get_zip($hash){
 		$res = $this->github_updater->get_commit_zip($hash);
 
-		echo "<pre>";print_r($res);
+		// echo "<pre>";print_r($res);
+		return $res;
 	}
 
-	public function admin_updates_home(){
+	public function admin_updates_home($update_status=NULL){
+		echo "<pre> This";print_r($update_status);exit;
 		$permissions='super_permissions';
+		$data['user_types']=Access_level::get_access_levels($permissions);
+		$hash = $this->get_hash();
+		$status = $this->github_update_status();
+		if (isset($status) && $status == 1) {
+			$status_ = "TRUE";
+			$available_update = 1;
+		}else{
+			$status_ = "FALSE";
+			$available_update = 0;
+		}
+		// echo $available_update;exit;
+		$git_records = Offline_model::get_prior_records();
+		// echo "<pre>";print_r($git_records);exit;
+
+		$data['available_update'] = $available_update;
+		$data['most_recent_commit'] = $hash;
+		$data['update_status'] = $status_;
+		$data['git_records'] = $git_records;
+
 		$data['title'] = "System Updates";
-		$data['user_types']=Access_level::get_access_levels($permissions);	
 		$data['banner_text'] = "User Management";
 		$data['content_view'] = "offline/offline_admin_home";
 		$template = 'shared_files/template/dashboard_v';
 
 		// $update_status = $this->github_update();
-		$hash = $this->get_hash();
-		$update_files = $this->get_zip($hash);
+		// $hash = $this->get_hash();
+		// $update_files = $this->get_zip($hash);
 
-		echo "<pre>";print_r($update_files);exit;
+		// echo "<pre>";print_r($update_files);exit;
 
 		$this -> load -> view($template, $data);
+	}
+
+	public function update_system(){
+		$hash = $this->get_hash();
+		$get_zip = $this->get_zip($hash);
+		$update_files = $this->extract_and_copy_files($hash);
+
+		if($update_files){
+			$update_status = TRUE;
+		}
+
+		$this->admin_updates_home($update_status);
 	}
 
 	public function tester(){

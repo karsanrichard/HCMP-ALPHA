@@ -49,17 +49,33 @@
  ?>
 <div class="container-fluid">
 	<div class="page_content">
-		<div class="" style="width:65%;margin:auto;">
-				<div class="row ">
-				
-				</div>
-			</div>
 		<div class="container-fluid">
 			
-			<div class="row">
-			
-				<div class="col-md-12 dt" style="border: 1px solid #ddd;padding-top: 1%; " id="test">
-					<p>I work</p>
+			<div class="row" style="padding:5%;">
+					<div class="col-md-3" style="margin:10px 0;float:right;">
+						<?php if ($available_update == 1) { ?>
+						<a class="btn btn-success" href="<?php echo base_url().'git_updater/update_system'; ?>" style="width:100%;">Update Available</a>
+						<?php } else{ ?>
+						<a class="btn btn-success" disabled="disabled" href="<?php echo base_url().'update_system'; ?>" style="width:100%;">You are currently up to date</a>
+					<?php } ?>
+					</div>
+				<div class="col-md-12" style="border: 1px solid #ddd;padding-top: 1%; " id="test">
+					
+
+					<table class="table table-hover table-bordered table-update">
+						<thead>
+							<th>Date of Commit</th>
+							<th>Hash</th>
+						</thead>
+						<tbody>
+							<?php foreach ($git_records as $records) { ?>
+								<tr>
+									<td><?php echo $records['update_time']; ?></td>
+									<td><?php echo $records['hash_value']; ?></td>
+								</tr>
+							<?php } ?>
+						</tbody>
+					</table>
 				</div>
 
 			</div>
