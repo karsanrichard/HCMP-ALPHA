@@ -46,9 +46,9 @@ class Github_updater
     public function get_hash()
     {
         $branches = json_decode($this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/branches'));
-        // $branches_raw = $this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/branches');
+        $branches_raw = $this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/branches');
         // $var = API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/branches';
-        // return $branches_raw;
+        return $branches_raw;
         // return $branches;
         return $branches[0]->commit->sha;
         // return $branches[0]->commit->sha !== $this->ci->config->item('current_commit');

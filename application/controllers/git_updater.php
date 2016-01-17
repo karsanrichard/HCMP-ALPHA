@@ -30,7 +30,7 @@ class Git_updater extends MY_Controller {
 	public function get_hash(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->get_hash();
-		// echo "<pre>"; print_r($res);
+		echo "<pre>"; print_r($res);
 		return $res;
 	}
 
@@ -59,8 +59,6 @@ class Git_updater extends MY_Controller {
 
 			$status = $this->copy_and_replace($squeaky);
 			$set_hash = $this->github_updater_set_config_hash($hash);
-
-
 	}
 
 	public function ignored_files(){
@@ -98,6 +96,20 @@ class Git_updater extends MY_Controller {
 		$delete_status = unlink($path);
 		delete_files('./path/to/directory/', TRUE);
 		return $delete_status;
+	}
+
+	public function admin_updates_home(){
+		$permissions='super_permissions';
+		$data['title'] = "System Updates";
+		$data['user_types']=Access_level::get_access_levels($permissions);	
+		$data['banner_text'] = "User Management";
+		$data['content_view'] = "offline/offline_admin_home";
+		$template = 'shared_files/template/dashboard_v';
+
+		$update_status = $this->get_hash();
+		echo "<pre>";print_r($update_status);exit;
+
+		$this -> load -> view($template, $data);
 	}
 
 	public function tester(){

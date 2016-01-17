@@ -57,7 +57,7 @@ $db['default']['hostname'] = '192.168.133.22';
 $db['default']['username'] = 'root';
 $db['default']['password'] = 'hPlaB';
 */
-$db['default']['database'] = 'hcmp_demo';
+$db['default']['database'] = 'hcmp_rtk';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
