@@ -136,6 +136,48 @@ class Github_updater
         }
         return false;
     }
+
+    public function update_download()
+    {
+        $branches = json_decode($this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/branches'));
+        $hash = $branches[0]->commit->sha;
+        if($hash !== $this->ci->config->item('current_commit'))
+        {
+            $commits = json_decode($this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/compare/'.$this->ci->config->item('current_commit').'...'.$hash));
+            $files = $commits->files;
+            // return $files;
+            // $dir = $this->_get_and_extract($hash);
+           /* foreach ($files as $file) {
+                if(!$this->_is_ignored($file->filename))
+                    {
+                        echo "<pre>" .$file->filename." Im ignored ". $file->status ."</pre>";
+                    }
+                    else{
+                        echo "<pre>" .$file->filename." Im not ignored ". $file->status ."</pre>";
+
+                        if($file->status == 'removed')unlink($file->filename);
+                        //Otherwise copy the file from the update.
+                        else copy($file->filename, $file->filename);
+                    }
+            }*/
+
+            // echo $this->_get_and_extract($hash);
+
+            if($dir = $this->_get_and_extract($hash))
+            {
+                //Clean up
+                if($this->ci->config->item('clean_update_files'))
+                {
+                    shell_exec("rm -rf {$dir}");
+                    unlink("{$hash}.zip");
+                }
+                //Update the current commit hash
+                $this->_set_config_hash($hash);
+            }
+        }
+        return false;
+    }
+
     public function _is_ignored($filename)
     {
         $ignored = $this->ci->config->item('ignored_files');
@@ -180,6 +222,13 @@ class Github_updater
 
         return false;
     }
+
+    public function get_commit_zip($hash){
+       $git_files = file_get_contents(self::GITHUB_URL . $this -> ci -> config -> item('github_user') . '/' . $this -> ci -> config -> item('github_repo') . '/zipball/' . $this -> ci -> config -> item('github_branch'), "{$hash}.zip");
+
+       return $git_files;
+    }
+
     private function _connect($url) {
         $curl = new Curl();
         $curl -> setOpt(CURLOPT_RETURNTRANSFER, TRUE);

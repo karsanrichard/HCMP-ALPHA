@@ -10,7 +10,7 @@ class Git_updater extends MY_Controller {
 	public function index()
 	{
 		// $this->load->view('welcome_message');
-		echo "Welcome to the the git updater. Updated Once";
+		echo "Welcome to the the git updater. Updated Once Again";
 	}
 
 	public function github_update_status(){
@@ -23,6 +23,13 @@ class Git_updater extends MY_Controller {
 	public function github_update(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->update();
+		// $this->unzip->extract();
+		echo "<pre>"; print_r($res);
+	}
+
+	public function github_update_download(){
+		// echo "I WAS HERE";
+		$res = $this->github_updater->update_download();
 		// $this->unzip->extract();
 		echo "<pre>"; print_r($res);
 	}
@@ -98,6 +105,12 @@ class Git_updater extends MY_Controller {
 		return $delete_status;
 	}
 
+	public function get_zip($hash){
+		$res = $this->github_updater->get_commit_zip($hash);
+
+		echo "<pre>";print_r($res);
+	}
+
 	public function admin_updates_home(){
 		$permissions='super_permissions';
 		$data['title'] = "System Updates";
@@ -106,8 +119,11 @@ class Git_updater extends MY_Controller {
 		$data['content_view'] = "offline/offline_admin_home";
 		$template = 'shared_files/template/dashboard_v';
 
-		$update_status = $this->get_hash();
-		echo "<pre>";print_r($update_status);exit;
+		// $update_status = $this->github_update();
+		$hash = $this->get_hash();
+		$update_files = $this->get_zip($hash);
+
+		echo "<pre>";print_r($update_files);exit;
 
 		$this -> load -> view($template, $data);
 	}
