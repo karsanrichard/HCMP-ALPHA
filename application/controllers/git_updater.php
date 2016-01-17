@@ -10,7 +10,7 @@ class Git_updater extends MY_Controller {
 	public function index()
 	{
 		// $this->load->view('welcome_message');
-		echo "Welcome to the the git updater";
+		echo "Welcome to the the git updater. Updated Once";
 	}
 
 	public function github_update_status(){
@@ -30,7 +30,7 @@ class Git_updater extends MY_Controller {
 	public function get_hash(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->get_hash();
-		echo "<pre>"; print_r($res);
+		// echo "<pre>"; print_r($res);
 		return $res;
 	}
 
