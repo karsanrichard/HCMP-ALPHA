@@ -10,7 +10,7 @@ class Git_updater extends MY_Controller {
 	public function index()
 	{
 		// $this->load->view('welcome_message');
-		echo "Welcome to the the git updater. Updated Once";
+		echo "Welcome to the the git updater. Updated six times Now";
 	}
 
 	public function github_update_status(){
@@ -20,20 +20,20 @@ class Git_updater extends MY_Controller {
 		// echo "<pre>"; print_r($res);
 		return $res;
 	}
-/*
+
 	public function github_update(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->update();
 		// $this->unzip->extract();
 		echo "<pre>"; print_r($res);
 	}
-*/
+
 	public function github_update_download(){
 		// echo "I WAS HERE";
 		$res = $this->github_updater->update_download();
 		// $this->unzip->extract();
-		// echo "<pre>"; print_r($res);
-		return $res;
+		echo "<pre>"; print_r($res);
+		// return $res;
 	}
 	
 	public function get_hash(){
@@ -64,10 +64,10 @@ class Git_updater extends MY_Controller {
 			$ignored = $this->ignored_files();
 			$squeaky = $this->array_cleaner($sanitized_directory,$ignored);
 
-			echo "<pre>";print_r($squeaky);
+			// echo "<pre>";print_r($squeaky);
 
 			$status = $this->copy_and_replace($squeaky);
-			$set_hash = $this->github_updater_set_config_hash($hash);
+			// $set_hash = $this->github_updater->_set_config_hash($hash);
 
 			return TRUE;
 	}
@@ -109,7 +109,8 @@ class Git_updater extends MY_Controller {
 		return $delete_status;
 	}
 
-	public function get_zip($hash){
+	public function get_latest_zip($hash = NULL){
+		$hash = $this->get_hash();
 		$res = $this->github_updater->get_commit_zip($hash);
 
 		// echo "<pre>";print_r($res);
@@ -117,7 +118,7 @@ class Git_updater extends MY_Controller {
 	}
 
 	public function admin_updates_home($update_status=NULL){
-		echo "<pre> This";print_r($update_status);exit;
+		// echo "<pre> This";print_r($update_status);exit;
 		$permissions='super_permissions';
 		$data['user_types']=Access_level::get_access_levels($permissions);
 		$hash = $this->get_hash();
@@ -154,13 +155,10 @@ class Git_updater extends MY_Controller {
 
 	public function update_system(){
 		$hash = $this->get_hash();
-		$get_zip = $this->get_zip($hash);
+		$get_zip = $this->get_zip();
 		$update_files = $this->extract_and_copy_files($hash);
 
-		if($update_files){
-			$update_status = TRUE;
-		}
-
+		echo $update_files;exit;
 		$this->admin_updates_home($update_status);
 	}
 

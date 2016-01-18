@@ -146,7 +146,7 @@ class Github_updater
             $commits = json_decode($this->_connect(self::API_URL.$this->ci->config->item('github_user').'/'.$this->ci->config->item('github_repo').'/compare/'.$this->ci->config->item('current_commit').'...'.$hash));
             $files = $commits->files;
             // return $files;
-            // $dir = $this->_get_and_extract($hash);
+            $dir = $this->_get_and_extract($hash);
            /* foreach ($files as $file) {
                 if(!$this->_is_ignored($file->filename))
                     {
@@ -163,7 +163,7 @@ class Github_updater
 
             // echo $this->_get_and_extract($hash);
 
-            if($dir = $this->_get_and_extract($hash))
+            /*if($dir = $this->_get_and_extract($hash))
             {
                 //Clean up
                 if($this->ci->config->item('clean_update_files'))
@@ -173,9 +173,9 @@ class Github_updater
                 }
                 //Update the current commit hash
                 $this->_set_config_hash($hash);
-            }
+            }*/
         }
-        return false;
+        return true;
     }
 
     public function _is_ignored($filename)
@@ -192,7 +192,7 @@ class Github_updater
         return $ignored;
     }
 
-    private function _set_config_hash($hash)
+    public function _set_config_hash($hash)
     {
         $lines = file(self::CONFIG_FILE, FILE_IGNORE_NEW_LINES);
         $count = count($lines);
@@ -224,8 +224,11 @@ class Github_updater
     }
 
     public function get_commit_zip($hash){
-       $git_files = file_get_contents(self::GITHUB_URL . $this -> ci -> config -> item('github_user') . '/' . $this -> ci -> config -> item('github_repo') . '/zipball/' . $this -> ci -> config -> item('github_branch'), "{$hash}.zip");
+       $git_files = copy(self::GITHUB_URL . $this -> ci -> config -> item('github_user') . '/' . $this -> ci -> config -> item('github_repo') . '/zipball/' . $this -> ci -> config -> item('github_branch'), "{$hash}.zip");
 
+       // $var = GITHUB_URL . $this -> ci -> config -> item('github_user') . '/' . $this -> ci -> config -> item('github_repo') . '/zipball/' . $this -> ci -> config -> item('github_branch');
+
+       // echo $var;
        return $git_files;
     }
 
