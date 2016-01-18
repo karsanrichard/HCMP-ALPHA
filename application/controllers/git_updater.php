@@ -10,7 +10,7 @@ class Git_updater extends MY_Controller {
 	public function index()
 	{
 		// $this->load->view('welcome_message');
-		echo "Welcome to the the git updater. Updated six times Now";
+		echo "Welcome to the the git updater. Updated Seven times Now";
 	}
 
 	public function github_update_status(){
@@ -155,11 +155,11 @@ class Git_updater extends MY_Controller {
 
 	public function update_system(){
 		$hash = $this->get_hash();
-		$get_zip = $this->get_zip();
+		$get_zip = $this->get_latest_zip();
 		$update_files = $this->extract_and_copy_files($hash);
 
-		echo $update_files;exit;
-		$this->admin_updates_home($update_status);
+		echo "Houston: ".$update_files;exit;
+		// $this->admin_updates_home($update_status);
 	}
 
 	public function tester(){
