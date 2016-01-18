@@ -16,7 +16,7 @@ class Admin extends MY_Controller {
 
 
 	public function index() {
-		// Sample comment for commit edited
+		// Sample comment for commit aaaaah
 		$data['title'] = "Commodities";
 		$this -> load -> view("", $data);
 	}

@@ -64,12 +64,14 @@ class Git_updater extends MY_Controller {
 			$ignored = $this->ignored_files();
 			$squeaky = $this->array_cleaner($sanitized_directory,$ignored);
 			$extracted_path = $this->get_extracted_path();
-			echo "<pre>";print_r($squeaky);
+			// echo "<pre>";print_r($squeaky);
+			echo "<pre>";print_r($extracted_path);
 
 			$status = $this->copy_and_replace($squeaky,$extracted_path);
+			echo "<pre>";print_r($status);
 			// $set_hash = $this->github_updater->_set_config_hash($hash);
 
-			return $status;
+			// return $status;
 	}
 
 	public function ignored_files(){
@@ -110,10 +112,22 @@ class Git_updater extends MY_Controller {
 	}
 
 	public function copy_and_replace($directories,$source_path = NULL){
+		$copy_status_ = array();
+		// echo FCPATH.$source_path."<pre>";
+		$fcpath = FCPATH;
+		$sanitized_fcpath = str_replace('\\','/', $fcpath);
+		// echo $sanitized_fcpath;
 		foreach ($directories as $dir) {
-			$copy_status = copy(FCPATH.$source_path, FCPATH.$dir);
+		// echo FCPATH.$dir."<pre>";
+			$dir = str_replace('/','\\', $dir);
+			$src = $sanitized_fcpath.$source_path."/".$dir;
+			$dest = $sanitized_fcpath.$dir;
+			$copy_status_[]['src']= "\"".$src."\"";
+			$copy_status_[]['dest']= "\"".$dest."\"";
+
+			$this->copy($src,$dest);
 		}
-		return $copy_status;
+		return $copy_status_;
 	}
 
 	public function delete_residual_files($path){
@@ -176,7 +190,12 @@ class Git_updater extends MY_Controller {
 	}
 
 	public function tester(){
-		echo FCPATH;
+		copy("C:/xampp/htdocs/HCMP-ALPHA/karsanrichard-HCMP-ALPHA-cad542a/README.md","C:/xampp/htdocs/HCMP-ALPHA/README.md");
+	}
+
+	public function copy($src,$dest){
+		$c = copy("C:/xampp/htdocs/HCMP-ALPHA/karsanrichard-HCMP-ALPHA-cad542a/README.md","C:/xampp/htdocs/HCMP-ALPHA/README.md");
+		return $c;
 	}
 
 }
