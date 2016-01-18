@@ -63,13 +63,13 @@ class Git_updater extends MY_Controller {
 			// echo "<pre>";print_r($sanitized_directory);
 			$ignored = $this->ignored_files();
 			$squeaky = $this->array_cleaner($sanitized_directory,$ignored);
+			$extracted_path = $this->get_extracted_path();
+			echo "<pre>";print_r($squeaky);
 
-			// echo "<pre>";print_r($squeaky);
-
-			$status = $this->copy_and_replace($squeaky);
+			$status = $this->copy_and_replace($squeaky,$extracted_path);
 			// $set_hash = $this->github_updater->_set_config_hash($hash);
 
-			return TRUE;
+			return $status;
 	}
 
 	public function ignored_files(){
@@ -94,11 +94,24 @@ class Git_updater extends MY_Controller {
 
 		return $dirty_array;
 		// echo FCPATH;
+	}//end of array cleaner
+
+	public function get_extracted_path(){
+		$user_name = $this -> config -> item('github_user');
+		$repo_name = $this -> config -> item('github_repo');
+		$hash = $this->get_hash();
+		$short_hash = substr($hash, 0, 7);
+
+		// echo $short_hash."<pre>";
+		$folder_name = $user_name.'-'.$repo_name.'-'.$short_hash;
+		// echo $folder_name;
+		return $folder_name;
+
 	}
 
-	public function copy_and_replace($directories){
+	public function copy_and_replace($directories,$source_path = NULL){
 		foreach ($directories as $dir) {
-			$copy_status = copy(FCPATH.$dir, FCPATH.$dir);
+			$copy_status = copy(FCPATH.$source_path, FCPATH.$dir);
 		}
 		return $copy_status;
 	}
